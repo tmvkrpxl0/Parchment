@@ -10,7 +10,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 plugins {
-    id 'org.parchmentmc.compass' version '0.5.0'
+    id 'org.parchmentmc.compass' version '0.7.0'
     id 'org.parchmentmc.writtenbooks' version '0.5.+'
     id 'maven-publish'
     id 'java-base'
@@ -63,7 +63,7 @@ dependencies {
     vignette 'net.minecraftforge.lex:vignette:0.2.0.16'
 
     // Enigma, pretty interface for editing mappings
-    enigma 'cuchaz:enigma-swing:1.4.6'
+    enigma 'cuchaz:enigma-swing:2.0.0'
 }
 
 afterEvaluate {
@@ -87,7 +87,7 @@ def convertObfMap = tasks.register('convertObfMap', ConvertMapping) {
     description 'Converts and reverses the Mojang obfuscation mappings.'
 
     def obfDL = project.plugins.getPlugin(CompassPlugin).obfuscationMapsDownloader
-    inputFile = obfDL.getObfuscationMap().flatMap { s -> obfDL.outputDirectory.file('client.txt') }
+    inputFile = obfDL.getObfuscationMap().flatMap { s -> obfDL.clientDownloadOutput  }
     inputFormat = ConvertMapping.Format.PROGUARD
     outputFile = project.layout.buildDirectory.dir('remapped')
             .zip(project.compass.version) { d, ver -> d.file("$ver-client.txt") }
@@ -245,9 +245,9 @@ abstract class EnigmaExec extends JavaExec {
 
         // Enigma runs on Java 16. If the Gradle JVM supports Java 16, then we are fine
         // If not, then we set the java launcher via JVM toolchain so Gradle downloads a Java 16 JVM
-        if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
+        if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
             javaLauncher.set project.javaToolchains.launcherFor {
-                languageVersion = JavaLanguageVersion.of(16)
+                languageVersion = JavaLanguageVersion.of(17)
             } as Provider<JavaLauncher>
         }
     }
